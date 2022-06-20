@@ -37,5 +37,5 @@ This code stands alone and does NOT link itself into the inners of anything.
 * Buffer switching code does not use or affect emacs (buffer-menu).
 * Buffer switching code does not change any other existing way to visit buffers.
 
-# Please report errors and/or upgrades.
+Please report errors and/or upgrades.
 # Thank You
