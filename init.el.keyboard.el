@@ -17,8 +17,9 @@
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;
-;; ring - a cons cell link list which is assumed to form a ring
+;; ring - a cons cell link list which assumed to form a ring
 ;; a ring has no beginning for end, but is referenced by a current cons
+;; -- used to order buffers --
 ;;;;;;;;;;;;;;;;
 
 (defun nim-ring-relative (DELTA RING)
@@ -102,6 +103,7 @@ Always considers TEST(car RING) first."
 ;;;;;;;;;;;;;;;;
 ;; ringset - a ring whose car of each cons is unique
 ;; a ringset is a ring which inserts cars only with nim-ringset-add-car
+;; -- used to order buffers --
 ;;;;;;;;;;;;;;;;
 
 (defun nim-ringset-with-car (NEW-CAR RING &optional TEST)
@@ -141,6 +143,7 @@ Default TEST to (lambda(CAR) (eq CAR NEW-CAR))."
 ;;;;;;;;;;;;;;;;
 ;; buffer-type - used to determine buffers that are regularly visited vs not
 ;; enforced by keystroke declarations
+;; -- used to limit ordered buffers --
 ;;;;;;;;;;;;;;;;
 
 (defun nim-buffer-type (&optional BUFF)
@@ -183,6 +186,7 @@ Note: *Flycheck error messages* causes problems because it cannot become current
 ;;;;;;;;;;;;;;;;
 ;; buffer-ringset - used to determine apparent buffer order
 ;; enforced by keystroke declarations
+;; -- used to order buffers --
 ;;;;;;;;;;;;;;;;
 
 (defvar _nim-buffer-ringset '()
@@ -453,14 +457,18 @@ Probably need this to master Ctrl-[ which loves to come back with ESC."
 
 ;; without [tab] declaration, tab will be converted to C-i
 ;;
-;; "[C-.]" [(control .)]
+;; "[C-.]" [(control .)] -- I have success with this syntax
 ;; "[^.]"  [(control .)]
-;; "[A-.]" [(alt .)]
+;; "[A-.]" [(alt .)] -- No longer on keyboards.
 ;; "[S-.]" [(shift .)]
-;; "[s-.]" [(super .)]
-;; "[H-.]" [(hyper .)]
-;; "[M-.]" [(meta .)]
-;; "[m-#]" mouse key number
+;; "[s-.]" [(super .)] -- I reserve this for the window manager.
+;; "[H-.]" [(hyper .)] -- No longer of keyboards.
+;; "[M-.]" [(meta .)] -- Meta is called Alt on keyboard
+;; "[m-#]" mouse key number -- The mouse is on the floor again.
+;;
+;; "[C-S-.]" specifies both control and shift plus the lower case letter
+;; "[M-.]" specifies meta and the case of the letter determines the inclusion of shift
+;; Note: Mixing the above two syntaxes in any way does not work.
 ;;
 ;; kbd
 ;;   <C-down> = C-<down> = ^<down>
