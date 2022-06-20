@@ -1,5 +1,7 @@
 ;;; init.el.keyboard.el -- included by init.el
+;;
 ;;; Commentary:
+;;
 ;; Keymap Lookup Order:
 ;; (define-key KEYMAP KEY DEF)
 ;; 1. keymap overriding-terminal-local-map is for terminal-specific key binds.
@@ -13,7 +15,9 @@
 ;;    `(local-set-key KEY COMMAND)'
 ;; 9. (current-global-map) is the last place Emacs will look for key binds and it is for the global ones.
 ;;    (global-set-key KEY COMMAND)
-
+;;
+;; Uploaded at https://github.com/paulihano/nim-switch-buffers
+;;
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;
@@ -310,24 +314,34 @@ Unless *scratch*, then 'nim-kill-mortal' (leave scratch open and garbage collect
 				(kill-buffer zBuff)))))))
 
 (defun nim-toggle-binary ()
-  "Rotate between mixed-octal (normal), hex, and hexl."
+  "Rotate between mixed-octal (normal), mixed-hex, and hexl."
   (interactive)
   (cond
-	((eq 'hexl-mode major-mode) ; hexl-mode to mixed octal mode
-	 (hexl-mode-exit)
+	((and (not (eq 'hexl-mode major-mode))
+         (not buffer-display-table))
+	 (hexl-mode)
+    (message "(hexl-mode)"))
+	((eq 'hexl-mode major-mode)
+    (hexl-mode-exit)
+    (defvar mixed-hex-display-table
+      (progn
+        (let ((zTable (make-display-table)))
+	       (cl-loop
+	        for x in
+           (append (number-sequence 127 255)
+                   (number-sequence 0 8)
+                   (number-sequence 11 31))
+	        do (aset zTable (unibyte-char-to-multibyte x)
+				        (cl-map 'vector
+							       (lambda (CHAR) (make-glyph-code CHAR 'escape-glyph))
+							       (format "\\%02x" x))))
+          zTable))
+      "A display-table showing unusual ASCII characters as hex values.")
+	 (setq buffer-display-table mixed-hex-display-table)
+    (message "(setq buffer-display-table mixed-hex-display-table)"))
+	(t
 	 (setq buffer-display-table nil)
-	 t)
-	(buffer-display-table ; dispay-table (assumed hex) to hexl-mode
-	 (setq buffer-display-table nil)
-	 (hexl-mode))
-	(t ; normal mode (mixed octal) to hex mode (using display-table)
-	 (setq buffer-display-table (make-display-table))
-	 (cl-loop
-	  for x in (append (number-sequence 127 255) (number-sequence 0 8) (number-sequence 11 31))
-	  do (aset buffer-display-table (unibyte-char-to-multibyte x)
-				  (cl-map 'vector
-							 (lambda (c) (make-glyph-code c 'escape-glyph))
-							 (format "\\%02x" x)))))))
+    (message "(setq buffer-display-table nil) ; standard-display-table uses octal"))))
 
 (defun nim-toggle-case ()
 	"Rotate CAPS, Capitalized, lower."
